@@ -4,6 +4,8 @@ require("dotenv").config({ path: __dirname + "/config/.env" });
 const PORT = process.env.PORT;
 const app = express();
 
+app.use(express.json());
+
 // Configure pg database
 const configuration = require("./knexfile")[process.env.NODE_ENV];
 const knex = require("knex")(configuration);
