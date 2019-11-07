@@ -4,6 +4,7 @@ const passport = require("passport");
 const url = require("url");
 const util = require("util");
 const querystring = require("querystring");
+const User = require("../../models/User");
 
 // @route   GET api/auth
 // @desc    Authenticate user
@@ -17,7 +18,7 @@ router.get(
 );
 
 router.get("/callback", (req, res, next) => {
-  passport.authenticate("auth0", (err, user, info) => {
+  passport.authenticate("auth0", async (err, user, info) => {
     if (err) {
       return next(err);
     }
@@ -27,6 +28,13 @@ router.get("/callback", (req, res, next) => {
     req.logIn(user, err => {
       if (err) {
         return next(err);
+      }
+      console.log(user);
+      let existingUser = await User.query().where('id', user.Profile.user_id);
+      if (!existingUser) { 
+        // Create new user in database with auth0 user id
+      } else {
+        // Update user with new fields
       }
       const returnTo = req.session.returnTo;
       delete req.session.returnTo;
