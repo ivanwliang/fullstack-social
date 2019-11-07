@@ -29,6 +29,7 @@ router.get("/callback", (req, res, next) => {
         return next(err);
       }
       const returnTo = req.session.returnTo;
+      delete req.session.returnTo;
       res.redirect(returnTo || "/");
     });
   })(req, res, next);
@@ -53,5 +54,7 @@ router.get("/logout", (req, res) => {
 
   res.redirect(logoutURL);
 });
+
+router.get("/", (req, res) => res.send("Success!"));
 
 module.exports = router;

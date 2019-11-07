@@ -16,7 +16,8 @@ passport.use(
       clientID: process.env.AUTH0_CLIENT_ID,
       clientSecret: process.env.AUTH0_CLIENT_SECRET,
       callbackURL:
-        process.env.AUTH0_CALLBACK_URL || "http://localhost:5000/callback"
+        process.env.AUTH0_CALLBACK_URL ||
+        "http://localhost:5000/api/auth/callback"
     },
     (accessToken, refreshToken, extraParams, profile, done) => {
       return done(null, profile);
