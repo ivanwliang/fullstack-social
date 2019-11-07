@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 require("dotenv").config({ path: __dirname + "/config/.env" });
+require("./services/passport");
 
 const PORT = process.env.PORT;
 const app = express();
@@ -25,6 +26,10 @@ if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 app.use(session(sess));
+
+// Passport initialization
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Define routes
 app.use("/api/users", require("./routes/api/users"));
