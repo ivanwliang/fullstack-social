@@ -3,6 +3,7 @@ const express = require("express");
 const gravatar = require("gravatar");
 const router = express.Router();
 const User = require("../../models/User");
+const secured = require("../../middleware/secured");
 
 // @route   POST api/users
 // @desc    Register new user
@@ -44,5 +45,9 @@ router.post(
     }
   }
 );
+
+router.get("/test", secured(), (req, res) => {
+  res.send("You are authenticated!");
+});
 
 module.exports = router;
