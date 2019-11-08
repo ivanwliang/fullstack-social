@@ -8,6 +8,20 @@ class User extends Model {
   static get idColumn() {
     return "user_id";
   }
+
+  static get relationMappings() {
+    const Profile = require("./Profile");
+    return {
+      profile: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Profile,
+        join: {
+          from: "users.user_id",
+          to: "profile.user_id"
+        }
+      }
+    };
+  }
 }
 
 module.exports = User;
