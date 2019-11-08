@@ -30,7 +30,7 @@ router.get("/callback", (req, res, next) => {
         return next(err);
       }
       console.log(user);
-      const { user_id, picture: avatar } = user;
+      const { user_id, picture: avatar, nickname } = user;
       const email = user.emails[0].value;
       const name = `${user.name.givenName} ${user.name.familyName}`;
       User.query()
@@ -39,7 +39,7 @@ router.get("/callback", (req, res, next) => {
           console.log(existingUser);
           if (!(existingUser && existingUser.length)) {
             User.query()
-              .insert({ user_id, email, name, avatar })
+              .insert({ user_id, email, name, avatar, nickname })
               .then(() => console.log("New user inserted"));
           }
         });
