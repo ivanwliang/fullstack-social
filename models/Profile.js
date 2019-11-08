@@ -8,6 +8,7 @@ class Profile extends Model {
   static get relationMappings() {
     const User = require("./User");
     const WorkExperience = require("./WorkExperience");
+    const Education = require("./Education");
     return {
       user: {
         relation: Model.BelongsToOneRelation,
@@ -23,6 +24,14 @@ class Profile extends Model {
         join: {
           from: "profile.id",
           to: "workExperiences.profile_id"
+        }
+      },
+      education: {
+        relation: Model.HasManyRelation,
+        modelClass: Education,
+        join: {
+          from: "profile.id",
+          to: "education.profile_id"
         }
       }
     };
