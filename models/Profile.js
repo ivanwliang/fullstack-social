@@ -9,6 +9,7 @@ class Profile extends Model {
     const User = require("./User");
     const WorkExperience = require("./WorkExperience");
     const Education = require("./Education");
+    const Skill = require("./Skill");
     return {
       user: {
         relation: Model.BelongsToOneRelation,
@@ -32,6 +33,14 @@ class Profile extends Model {
         join: {
           from: "profile.id",
           to: "education.profile_id"
+        }
+      },
+      skills: {
+        relation: Model.HasManyRelation,
+        modelClass: Skill,
+        join: {
+          from: "profile.id",
+          to: "skills.profile_id"
         }
       }
     };
