@@ -29,14 +29,12 @@ router.get("/callback", (req, res, next) => {
       if (err) {
         return next(err);
       }
-      console.log(user);
       const { user_id, picture: avatar, nickname } = user;
       const email = user.emails[0].value;
       const name = `${user.name.givenName} ${user.name.familyName}`;
       User.query()
         .where("user_id", user_id)
         .then(existingUser => {
-          console.log(existingUser);
           if (!(existingUser && existingUser.length)) {
             User.query()
               .insert({ user_id, email, name, avatar, nickname })

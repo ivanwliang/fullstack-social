@@ -11,12 +11,12 @@ class Profile extends Model {
     const Education = require("./Education");
     const Skill = require("./Skill");
     return {
-      user: {
+      users: {
         relation: Model.BelongsToOneRelation,
         modelClass: User,
         join: {
           from: "profile.user_id",
-          to: "user.user_id"
+          to: "users.user_id"
         }
       },
       workExperiences: {
