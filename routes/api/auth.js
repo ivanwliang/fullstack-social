@@ -18,7 +18,7 @@ router.get(
 );
 
 router.get("/callback", (req, res, next) => {
-  passport.authenticate("auth0", async (err, user, info) => {
+  passport.authenticate("auth0", (err, user, info) => {
     if (err) {
       return next(err);
     }
@@ -30,12 +30,19 @@ router.get("/callback", (req, res, next) => {
         return next(err);
       }
       console.log(user);
-      let existingUser = await User.query().where('id', user.Profile.user_id);
-      if (!existingUser) { 
-        // Create new user in database with auth0 user id
-      } else {
-        // Update user with new fields
-      }
+      const { user_id, picture: avatar } = user;
+      const email = user.emails[0].value;
+      const name = `${user.name.givenName} ${user.name.familyName}`;
+      User.query()
+        .where("user_id", user_id)
+        .then(existingUser => {
+          console.log(existingUser);
+          if (!(existingUser && existingUser.length)) {
+            User.query()
+              .insert({ user_id, email, name, avatar })
+              .then(() => console.log("New user inserted"));
+          }
+        });
       const returnTo = req.session.returnTo;
       delete req.session.returnTo;
       res.redirect(returnTo || "/api/users/test");
