@@ -38,16 +38,83 @@ router.post(
     [
       check("role", "Role field is required")
         .not()
-        .isEmpty(),
-      check("skills", "Skills field is required")
-        .not()
         .isEmpty()
+      // check("skills", "Skills field is required")
+      //   .not()
+      //   .isEmpty()
     ]
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
+    }
+
+    const {
+      employer,
+      website,
+      location,
+      role,
+      bio,
+      githubUsername,
+      skills,
+      youtubeURL,
+      facebookURL,
+      twitterURL,
+      instagramURL,
+      linkedinURL
+    } = req.body;
+
+    // const formattedSkills = skills.split(",").map(skill => skill.trim());
+    // console.log(formattedSkills);
+    // res.send("created profile");
+
+    try {
+      let profile = await Profile.query()
+        .where("user_id", req.params.userId)
+        .eager("users");
+
+      // if (profile) {
+      //   // Update profile
+      //   profile = await Profile.query()
+      //     .where("user_id", req.params.userId)
+      //     .patch({
+      //       user_id: req.user.user_id,
+      //       employer,
+      //       website,
+      //       location,
+      //       role,
+      //       bio,
+      //       github_username: githubUsername,
+      //       youtube_url: youtubeURL,
+      //       facebook_url: facebookURL,
+      //       twitter_url: twitterURL,
+      //       linkedin_url: linkedinURL,
+      //       instagram_url: instagramURL
+      //     });
+      //   // TODO Update skills table for user
+      //   return res.status(200).json(profile);
+      // }
+
+      // Create new profile
+      profile = await Profile.query().insert({
+        user_id: req.user.user_id,
+        employer,
+        website,
+        location,
+        role,
+        bio,
+        github_username: githubUsername,
+        youtube_url: youtubeURL,
+        facebook_url: facebookURL,
+        twitter_url: twitterURL,
+        linkedin_url: linkedinURL,
+        instagram_url: instagramURL
+      });
+      return res.send(profile);
+    } catch (error) {
+      console.log(error.message);
+      res.status(500).send("Server Error");
     }
   }
 );
