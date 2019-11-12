@@ -28,11 +28,11 @@ router.get("/me", secured(), async (req, res) => {
   }
 });
 
-// @route   POST api/profiles
+// @route   POST api/profiles/me
 // @desc    Create new profile for current user
 // @access  Private
 router.post(
-  "/",
+  "/me",
   [
     secured(),
     [
@@ -105,11 +105,11 @@ router.post(
   }
 );
 
-// @route   PATCH api/profiles/:user_id
+// @route   PATCH api/profiles/me
 // @desc    Update profile for current user
 // @access  Private
 router.patch(
-  "/",
+  "/me",
   [
     secured(),
     [
