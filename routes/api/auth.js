@@ -32,7 +32,6 @@ router.get("/callback", (req, res, next) => {
       const { user_id, picture: avatar, nickname } = user;
       const email = user.emails[0].value;
       const name = `${user.name.givenName} ${user.name.familyName}`;
-      console.log(user);
       User.query()
         .where("user_id", user_id)
         .then(existingUser => {

@@ -5,17 +5,16 @@ const { check, validationResult } = require("express-validator");
 
 const User = require("../../models/User");
 const Profile = require("../../models/Profile");
-const Skill = require("../../models/Skill");
 
-// @route   GET api/profiles/:user_id
+// @route   GET api/profiles/me
 // @desc    Get current user's profile
 // @access  Private
-router.get("/:userId", secured(), async (req, res) => {
+router.get("/me", secured(), async (req, res) => {
   try {
     // Grab user's profile by their user_id -> profile.id
     // Also grab the nickname and avatar of the user from Users table
     const profile = await Profile.query()
-      .where("user_id", req.params.userId)
+      .where("user_id", req.user.user_id)
       .eager("users");
 
     if (!(profile && profile.length)) {
@@ -29,11 +28,11 @@ router.get("/:userId", secured(), async (req, res) => {
   }
 });
 
-// @route   POST api/profiles/:user_id
+// @route   POST api/profiles
 // @desc    Create new profile for current user
 // @access  Private
 router.post(
-  "/:userId",
+  "/",
   [
     secured(),
     [
@@ -50,7 +49,6 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const {
       employer,
       website,
@@ -66,12 +64,14 @@ router.post(
       linkedinURL
     } = req.body;
 
-    const formattedSkills = skills.split(",").map(skill => skill.trim());
-
     try {
-      let profile = await Profile.query()
-        .where("user_id", req.params.userId)
-        .eager("users");
+      let profile = await Profile.query().where("user_id", req.user.user_id);
+
+      if (profile && profile.length) {
+        return res
+          .status(400)
+          .send("Profile already exists, use update instead.");
+      }
 
       // Create new profile
       profile = await Profile.query().insert({
@@ -90,6 +90,7 @@ router.post(
       });
 
       // Insert skills for user
+      const formattedSkills = skills.split(",").map(skill => skill.trim());
       for (const skill of formattedSkills) {
         await profile.$relatedQuery("skills").insert({
           skill_description: skill
@@ -108,7 +109,7 @@ router.post(
 // @desc    Update profile for current user
 // @access  Private
 router.patch(
-  "/:userId",
+  "/",
   [
     secured(),
     [
@@ -143,13 +144,13 @@ router.patch(
 
     try {
       let profile = await Profile.query()
-        .where("user_id", req.params.userId)
+        .where("user_id", req.user.user_id)
         .eager("users");
 
       if (profile) {
         // Update profile
         profile = await Profile.query()
-          .where("user_id", req.params.userId)
+          .where("user_id", req.user.user_id)
           .patch({
             user_id: req.user.user_id,
             employer,
