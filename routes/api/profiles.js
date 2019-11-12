@@ -5,6 +5,7 @@ const { check, validationResult } = require("express-validator");
 
 const User = require("../../models/User");
 const Profile = require("../../models/Profile");
+const Skill = require("../../models/Skill");
 
 // @route   GET api/profiles/:user_id
 // @desc    Get current user's profile
@@ -38,10 +39,10 @@ router.post(
     [
       check("role", "Role field is required")
         .not()
+        .isEmpty(),
+      check("skills", "Skills field is required")
+        .not()
         .isEmpty()
-      // check("skills", "Skills field is required")
-      //   .not()
-      //   .isEmpty()
     ]
   ],
   async (req, res) => {
@@ -65,9 +66,7 @@ router.post(
       linkedinURL
     } = req.body;
 
-    // const formattedSkills = skills.split(",").map(skill => skill.trim());
-    // console.log(formattedSkills);
-    // res.send("created profile");
+    const formattedSkills = skills.split(",").map(skill => skill.trim());
 
     try {
       let profile = await Profile.query()
@@ -89,6 +88,14 @@ router.post(
         linkedin_url: linkedinURL,
         instagram_url: instagramURL
       });
+
+      // Insert skills for user
+      for (const skill of formattedSkills) {
+        await profile.$relatedQuery("skills").insert({
+          skill_description: skill
+        });
+      }
+
       return res.send(profile);
     } catch (error) {
       console.log(error.message);
