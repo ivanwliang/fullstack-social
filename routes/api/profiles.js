@@ -5,6 +5,7 @@ const { check, validationResult } = require("express-validator");
 
 const User = require("../../models/User");
 const Profile = require("../../models/Profile");
+const Skill = require("../../models/Skill");
 
 // @route   GET api/profiles/me
 // @desc    Get current user's profile
@@ -108,24 +109,24 @@ router.post(
 // @route   PATCH api/profiles/me
 // @desc    Update profile for current user
 // @access  Private
-router.patch(
+router.put(
   "/me",
   [
-    secured(),
-    [
-      check("role", "Role field is required")
-        .not()
-        .isEmpty()
-      // check("skills", "Skills field is required")
-      //   .not()
-      //   .isEmpty()
-    ]
+    secured()
+    // [
+    //   check("role", "Role field is required")
+    //     .not()
+    //     .isEmpty(),
+    // check("skills", "Skills field is required")
+    //   .not()
+    //   .isEmpty()
+    // ]
   ],
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res.status(400).json({ errors: errors.array() });
+    // }
 
     const {
       employer,
@@ -143,13 +144,11 @@ router.patch(
     } = req.body;
 
     try {
-      let profile = await Profile.query()
-        .where("user_id", req.user.user_id)
-        .eager("users");
+      let profile = await Profile.query().where("user_id", req.user.user_id);
 
       if (profile) {
         // Update profile
-        profile = await Profile.query()
+        await Profile.query()
           .where("user_id", req.user.user_id)
           .patch({
             user_id: req.user.user_id,
@@ -165,8 +164,22 @@ router.patch(
             linkedin_url: linkedinURL,
             instagram_url: instagramURL
           });
-        // TODO Update skills table for user
-        return res.send(profile);
+        console.log(profile);
+        // Update skills table for user
+        if (skills) {
+          console.log("skills hit");
+          const formattedSkills = skills.split(",").map(skill => skill.trim());
+          await Skill.query()
+            .delete()
+            .where("profile_id", 18);
+          for (const skill of formattedSkills) {
+            await profile.$relatedQuery("skills").insert({
+              skill_description: skill
+            });
+          }
+        }
+
+        return res.status(200).send(profile);
       } else {
         return res.status(404).send("No such user exists");
       }
